@@ -8,6 +8,9 @@ This branch is dedicated to exploring, prototyping, and validating the use of **
 - Evaluate performance, reliability, and scalability considerations.
 - Document lessons learned and recommendations for future implementation.
 
+## This is how the repo will work:
+![image](https://github.com/user-attachments/assets/c5b9edf8-f37d-4373-92f9-8402c8ca115c)
+
 ## Key Concepts
 1. **Webhooks**:
    - A mechanism for one service to send real-time data to another service when a particular event occurs.
