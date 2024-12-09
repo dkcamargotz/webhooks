@@ -2,3 +2,5 @@ venv
 *.env
 .env
 *.sqlite
+*.pyc
+__pycache__
