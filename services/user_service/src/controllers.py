@@ -3,8 +3,8 @@ from flask import request
 from typing import TypeVar, List, Generic
 from uuid import UUID
 
-from .repositories import UserRepository
-from .models import User
+from src.repositories import UserRepository
+from src.models import User
 
 T = TypeVar('T')
 class Controller(Resource, Generic[T]):
