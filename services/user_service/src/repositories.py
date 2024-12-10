@@ -2,7 +2,6 @@ from typing import List
 import sqlite3
 from uuid import UUID
 from src.models import User
-from json import loads
 from abc import ABC, abstractmethod
 from os import environ
 
@@ -27,7 +26,7 @@ class UserRepository(ABC):
 
 class UserDatabaseRepository(UserRepository):
     def __init__(self):
-        self.db = environ['SQLITE_DATABASE_PATH']
+        self.db = environ['USERS_SQLITE_DATABASE_PATH']
 
     def get_all(self) -> List[User]:
         with sqlite3.connect(self.db) as conn:

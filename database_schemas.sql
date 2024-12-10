@@ -11,4 +11,10 @@ CREATE TABLE "confirmations" (
   "confirmation_code" TEXT,
   "status" TEXT
 );
+
+CREATE TABLE "subscriptions" (
+  "uuid" TEXT PRIMARY KEY,
+  "confirmation_id" TEXT,
+  "hook_endpoint" TEXT
+);
   
