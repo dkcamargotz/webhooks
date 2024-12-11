@@ -25,13 +25,11 @@ This branch will:
 1. Build a prototype with the following components:
    - **Event Emitter**: A microservice that generates events.
    - **Webhook Handler**: A microservice that receives and processes webhook notifications.
-   - **Retry Mechanism**: Handle delivery failures with exponential backoff.
    - **Logging and Monitoring**: Capture webhook delivery statistics for analysis.
 2. Explore use cases such as:
    - Real-time notifications.
    - Integration with third-party services.
 3. Analyze potential challenges:
-   - Security: Authenticating webhook requests (e.g., HMAC validation).
    - Scalability: Managing high volumes of webhook events.
    - Reliability: Ensuring delivery even during downtime.
 
@@ -49,10 +47,8 @@ This branch will:
    - Record the architecture, workflows, and learnings in detail.
 
 ## Tools and Technologies
-- **Programming Language**: Python (FastAPI, Flask) or Node.js.
-- **Messaging Systems**: RabbitMQ, Kafka (if necessary for pub/sub patterns).
-- **Database**: PostgreSQL or MongoDB for storing webhook logs.
-- **Queue System**: Celery, SQS, or similar.
+- **Programming Language**: Python (Flask REST Full Framewoek).
+- **Database**: SQLite3 for storing webhook logs.
 
 ## Expected Outcomes
 - A functioning prototype demonstrating webhook-based communication in a microservices setup.
