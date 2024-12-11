@@ -20,7 +20,7 @@ class Repository(ABC, Generic[T]):
     def delete(self, confirmation: T) -> UUID:
         pass
     @abstractmethod
-    def update(self, user_id: UUID, updated_confirmation: T) -> True:
+    def update(self, id: UUID, updated_confirmation: T) -> True:
         pass
 
 class ConfirmationDatabaseRepository(Repository[Confirmation]):
@@ -72,7 +72,7 @@ class ConfirmationDatabaseRepository(Repository[Confirmation]):
             conn.commit()
             return confirmation.id
 
-    def update(self, user_id: UUID, updated_confirmation: Confirmation) -> Confirmation:
+    def update(self, id: UUID, updated_confirmation: Confirmation) -> Confirmation:
         with sqlite3.connect(self.db) as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -81,14 +81,18 @@ class ConfirmationDatabaseRepository(Repository[Confirmation]):
                 SET confirmation_code = ?, status = ?, user_id = ?
                 WHERE uuid = ?
                 """,
-                (updated_confirmation.confirmation_code, updated_confirmation.status.value, str(user_id), str(updated_confirmation.id))
+                (updated_confirmation.confirmation_code, updated_confirmation.status.value, str(updated_confirmation.user_id), str(id))
             )
             conn.commit()
             return updated_confirmation
 
 
-
-class WebhookSubscriptionDatabaseRepository(Repository[WebhookSubscription]):
+class WebhookSubscriptionRepository(Repository[WebhookSubscription]):
+    @abstractmethod
+    def get_by_confirmation_id(confirmation_id: UUID) -> WebhookSubscription | None:
+        pass
+ 
+class WebhookSubscriptionDatabaseRepository(WebhookSubscriptionRepository):
     def __init__(self):
         self.db = environ['MAIL_SQLITE_DATABASE_PATH']
 
@@ -109,6 +113,18 @@ class WebhookSubscriptionDatabaseRepository(Repository[WebhookSubscription]):
         with sqlite3.connect(self.db) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT uuid, confirmation_id, hook_endpoint FROM webhook_subscriptions WHERE uuid = ?", (str(id),))
+            row = cursor.fetchone()
+            if row:
+                return WebhookSubscription(
+                    id=UUID(row[0]),
+                    confirmation_id=UUID(row[1]),
+                    hook_endpoint=row[2]
+                )
+            return None
+    def get_by_confirmation_id(self, confirmation_id: UUID) -> WebhookSubscription | None:
+        with sqlite3.connect(self.db) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT uuid, confirmation_id, hook_endpoint FROM webhook_subscriptions WHERE confirmation_id = ?", (str(confirmation_id),))
             row = cursor.fetchone()
             if row:
                 return WebhookSubscription(

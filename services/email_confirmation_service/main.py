@@ -1,9 +1,12 @@
 from flask import Flask
 from flask_restful import Api
 from dotenv import load_dotenv
+from os import environ
 
-from src.controllers import ConfirmationWebhook
+from src.controllers import ConfirmationWebhook, ConfirmationController
 from src.respositories import WebhookSubscriptionDatabaseRepository, ConfirmationDatabaseRepository
+
+
 load_dotenv()
 app = Flask(__name__)
 api = Api(app)
@@ -20,12 +23,19 @@ api.add_resource(
         "confirmation_repository": confirmation_repository
     }
 )
-
+api.add_resource(
+    ConfirmationController, 
+    '/api/confirmation/<string:confirmation_id>',
+    resource_class_kwargs={
+        "subscription_repository": subscription_repository,
+        "confirmation_repository": confirmation_repository
+    }
+)
 
 
 if __name__ == '__main__':
     app.run(
         debug=True,
-        host='127.0.0.1',
-        port='8080'
+        host=environ.get('MAIL_HOST'),
+        port=environ.get('MAIL_PORT')
     )

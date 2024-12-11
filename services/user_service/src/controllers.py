@@ -2,6 +2,9 @@ from flask_restful import Resource
 from flask import request
 from typing import TypeVar, List, Generic
 from uuid import UUID
+import requests
+import json
+from os import environ
 
 from src.repositories import UserRepository
 from src.models import User
@@ -19,6 +22,35 @@ class UsersController(Controller[UserRepository]):
         ]
 
 class UserController(Controller[UserRepository]):
+    def post(self):
+        user = User.from_json(request.get_json())
+        try:
+            response = requests.request(
+                method="POST", 
+                url=f"http://{environ.get('MAIL_HOST')}:{environ.get('MAIL_PORT')}/webhook/confirmation", 
+                headers={
+                    'Content-Type': 'application/json'
+                },
+                data=json.dumps({
+                    "user_id": str(user.id),
+                    "email": user.mail,
+                    "hook_endpoint": f"http://{environ.get('USERS_HOST')}:{environ.get('USERS_PORT')}/user/{str(user.id)}"
+                })
+            )
+            if not response.ok:
+                raise Exception('Request failed')
+            
+            self.repository.add(user)
+            return {
+                "status": "ok",
+                "response": json.loads(response.text)
+            }
+        except Exception as e:
+            return (
+                {"status": "err", "msg": str(e)}, 503, None
+            )
+
+class UserByIdController(Controller[UserRepository]):
     def get(self, user_id: str):
         user = self.repository.get(
             id=UUID(user_id)
@@ -33,19 +65,20 @@ class UserController(Controller[UserRepository]):
         
 
 
-    def post(self):
-        user_json = request.get_json()
-        self.repository.add(
-            User.from_json(
-                json=user_json
-            )
+    def post(self, user_id: str):
+        user = self.repository.get(user_id)
+        user.confirmed = True
+        self.repository.update(
+            user_id=user_id,
+            updated_user=user
         )
-
-        # TODO: call the mail service webhook here
-        
         return {
             "status": "ok"
         }
+
+
+    
+        
 
     def put(self, user_id: str):
         user = self.repository.get(UUID(user_id))
